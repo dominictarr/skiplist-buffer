@@ -1,4 +1,4 @@
-
+var deepEqual = require('assert').deepEqual
 var ll = require('../level-list')
 
 var tape = require('tape')
@@ -48,8 +48,6 @@ tape('simple 4 items', function (t) {
   var c = ll.item(b, 30, [0, 0])
   //t.equal(c, 36)
 
-  console.log("DUMP", ll.dump(b))
-
   ;[21, 1, 17, 29].forEach(function (target) {
     var a = ll.find(b, f, target)
     console.log('find:', target, a)
@@ -58,24 +56,106 @@ tape('simple 4 items', function (t) {
     t.ok(ll.get(b, ll.next(b, ptr, 0)) > target, 'next is greater than target')
   })
 
-  console.log('find', 21, ll.find(b, f, 21))
-  console.log(ll.find(b, f, 1))
-  console.log(ll.find(b, f, 17))
-  console.log(ll.find(b, f, 29))
-
-  return t.end()
-  console.log(ll.all(b))
   
-//  ll.insert(b, f, 21)
-//  ll.insert(b, f, 1)
   ll.insert(b, f, 29)
+
   console.log(ll.dump(b))
-  console.log(ll.all(b))
-  ll.insert(b, f, 31)
-  console.log(ll.dump(b))
-  console.log(ll.all(b))
+//  console.log(ll.all(b))
+//  ll.insert(b, f, 31)
+//  console.log(ll.dump(b))
+//  console.log(ll.all(b))
+//
+
   t.end()
 })
+
+
+tape('insert first item', function (t) {
+  var b = Buffer.alloc(10*1024)
+  var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
+  console.log(ll.dump(b))
+
+  ll.insert(b, c, 1000)
+  console.log(ll.dump(b))
+  
+  t.end()
+})
+
+tape('increasing items', function (t) {
+  var b = Buffer.alloc(10*1024)
+  var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
+  var a = [1,2,3,4,5]
+  a.forEach(function (v) {
+    ll.insert(b, c, v)
+  })
+  t.deepEqual(ll.all(b), a)
+  t.end()
+})
+
+tape('decreasing items', function (t) {
+  var b = Buffer.alloc(10*1024)
+  var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
+  var a = [1,2,3,4,5]
+  a.slice().reverse().forEach(function (v) {
+    ll.insert(b, c, v)
+  })
+  t.deepEqual(ll.all(b), a)
+  t.end()
+})
+
+
+tape('problems', function (t) {
+  b = Buffer.alloc(1024)
+
+  b.write('6c0000000800000000000000240000803800008038000080380000803800008050000000460100003800008050000000d4020000500000004b020000300000802400008050000080500000805000000093030000000000800000008000000080000000800000008000000000','hex')
+  var v = 838
+  
+  var a = [350, 410, 531, 761, 812]
+  console.log(ll.all(b))
+  console.log(ll.dump(b))
+  ll.insert(b, 8, v)
+  t.deepEqual(ll.all(b), a)
+  t.end()
+})
+
+return
+
+tape('random items', function (t) {
+
+  for(var j = 0; j < 100000; j++) {
+    var b = Buffer.alloc(10*1024)
+    var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0])
+    var a = []
+    for(var i = 0; i < 5; i++) {
+      var d = ll.dump(b)
+      var s = b.toString('hex', 0, b.readUInt32LE(0))
+      var v = ~~(1000*Math.random())
+      a.push(v)
+      ll.insert(b, c, v)
+      try {
+        deepEqual(ll.all(b), a.slice().sort(function (a, b) { return a - b }))
+      }
+      catch (err) {
+        console.log("PRE", d)
+        console.log("POST", ll.dump(b))
+        console.log(ll.all(b))
+        console.log(s, v)
+        throw err
+      }
+    }
+  }
+//  console.log("DUMP", ll.dump(b))
+//  console.log(ll.all(b))
+  
+  t.end()
+})
+
+
+
+
+
+
+
 
 
 
