@@ -47,7 +47,7 @@ tape('simple 4 items', function (t) {
 //  t.equal(c, 24)
   var c = ll.item(b, 30, [0, 0])
   //t.equal(c, 36)
-
+  console.log(ll.dump(b))
   ;[21, 1, 17, 29].forEach(function (target) {
     var a = ll.find(b, f, target)
     console.log('find:', target, a)
@@ -85,8 +85,16 @@ tape('increasing items', function (t) {
   var b = Buffer.alloc(10*1024)
   var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
   var a = [1,2,3,4,5]
+  var _a = []
   a.forEach(function (v) {
+    _a.push(v)
     ll.insert(b, c, v)
+    try {
+      deepEqual(ll.all(b), _a.sort(function (a,b) { return a - b }))
+    } catch (err) {
+      console.log(ll.dump(b))
+      throw err
+    }
   })
   t.deepEqual(ll.all(b), a)
   t.end()
@@ -96,13 +104,20 @@ tape('decreasing items', function (t) {
   var b = Buffer.alloc(10*1024)
   var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
   var a = [1,2,3,4,5]
+  var _a = []
   a.slice().reverse().forEach(function (v) {
+    _a.push(v)
     ll.insert(b, c, v)
+    try {
+      deepEqual(ll.all(b), _a.sort(function (a,b) { return a - b }))
+    } catch (err) {
+      console.log(ll.dump(b))
+      throw err
+    }
   })
   t.deepEqual(ll.all(b), a)
   t.end()
 })
-
 
 tape('problems', function (t) {
   b = Buffer.alloc(1024)
@@ -110,7 +125,7 @@ tape('problems', function (t) {
   b.write('6c0000000800000000000000240000803800008038000080380000803800008050000000460100003800008050000000d4020000500000004b020000300000802400008050000080500000805000000093030000000000800000008000000080000000800000008000000000','hex')
   var v = 838
   
-  var a = [350, 410, 531, 761, 812]
+  var a = [326, 587, 724, 838, 915]
   console.log(ll.all(b))
   console.log(ll.dump(b))
   ll.insert(b, 8, v)
@@ -118,15 +133,13 @@ tape('problems', function (t) {
   t.end()
 })
 
-return
-
 tape('random items', function (t) {
 
-  for(var j = 0; j < 100000; j++) {
+  for(var j = 0; j < 100; j++) {
     var b = Buffer.alloc(10*1024)
     var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0])
     var a = []
-    for(var i = 0; i < 5; i++) {
+    for(var i = 0; i < 50; i++) {
       var d = ll.dump(b)
       var s = b.toString('hex', 0, b.readUInt32LE(0))
       var v = ~~(1000*Math.random())
@@ -134,6 +147,12 @@ tape('random items', function (t) {
       ll.insert(b, c, v)
       try {
         deepEqual(ll.all(b), a.slice().sort(function (a, b) { return a - b }))
+        t.deepEqual(ll.all(b), a.slice().sort(function (a, b) { return a - b }))
+        a.forEach(function (v) {
+          //searching for an exact value always returns the pointer to that value.
+          var p = ll.find(b, c, v).pop()
+          t.equal(b.readUInt32LE(p), v)
+        })
       }
       catch (err) {
         console.log("PRE", d)
@@ -144,19 +163,9 @@ tape('random items', function (t) {
       }
     }
   }
-//  console.log("DUMP", ll.dump(b))
-//  console.log(ll.all(b))
-  
+
   t.end()
 })
-
-
-
-
-
-
-
-
 
 
 
