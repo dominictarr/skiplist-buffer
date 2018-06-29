@@ -28,6 +28,74 @@ function item (b, value, levels) {
   return free
 }
 
+function r_levels (b, ptr) {
+  var i = 0
+  while(b.readUInt32LE(ptr+=4) & 0x80000000)
+    i++
+  return i
+}
+
+function compare (a, b) {
+  return a - b
+}
+
+function find(b, ptr, target) {
+  var level = r_levels(b, ptr)
+  var a = []
+  var ptr
+  var l= 100
+  while(l--) {
+    if(level < 0) break;
+    //if this level is last item
+    if(r_level(b, ptr, level) === 0) {
+      a.push(ptr)
+      level --
+    }
+    //if current pointer is greater
+    else if (compare(r_value(b, r_level(b, ptr, level)), target) > 0) {
+      a.push(ptr)
+      level --
+    }
+    else {
+      ptr = r_level(b, ptr, level)
+    }
+  }
+  return a
+}
+
+function insert (b, ptr, value) {
+  var levels = find(b, ptr, value)
+  var l = []
+  var free = b.readUInt32LE(0)
+  do {
+    var _ptr = levels.pop()
+    var val = b.readUInt32LE(_ptr)
+    var next = b.readUInt32LE(_ptr+4+4*l.length)
+    //write as int32 (not uint) to prevent out of bounds check
+    b.writeInt32LE(free | (next & 0x80000000), _ptr + 4 + 4*l.length)
+    l.push(next&0x7ffffff)
+    var again = Math.random() > 0.5
+  } while(levels.length && again)
+  var c = item(b, value, l)
+
+  return c
+}
+
+function all (b) {
+  var a = []
+  var ptr = 8
+  while(ptr = r_level(b, ptr, 0)) {
+    a.push(r_value(b, ptr))
+  }
+  return a
+}
+
+module.exports = {
+  item: item, dump: dump, find: find, all: all, insert: insert, get: r_value, next: r_level
+}
+
+//debugging stuff...
+
 function dump_node (b, ptr) {
   var levels = []
   var a = {value: b.readUInt32LE(ptr), levels: levels}
@@ -58,86 +126,6 @@ function dump (b) {
   }
   return a
 }
-
-function r_levels (b, ptr) {
-  var i = 0
-  while(b.readUInt32LE(ptr+=4) & 0x80000000)
-    i++
-  return i
-}
-
-function compare (a, b) {
-  return a - b
-}
-
-function find(b, ptr, target) {
-//  console.log("---")
-//  console.log("FIND", target)
-  var level = r_levels(b, ptr)
-  var a = []
-  var l = 10
-  var ptr_lo = ptr
-  while(l--) {
-    if(level < 0) return a
-    if(compare(r_value(b, ptr), target) > 0) {
-      //value is larger than target.
-      //decrease level
-      console.log(">", ptr, level)
-      level --
-      if(a[a.length-1] != ptr_lo)
-        a.push(ptr_lo)
-      while(!(ptr = r_level(b, ptr_lo, level))) {
-        level--
-      }
-    }
-    else {
-      //value is smaller or equal to target
-      console.log("<", ptr, level)
-      ptr_lo = ptr
-      var dec = false
-      while(!(ptr = r_level(b, ptr_lo, level))) {
-        a.push(ptr_lo)
-        level--;
-      }
-    }
-  }
-  return a
-}
-
-function insert (b, ptr, value) {
-  var levels = find(b, ptr, value)
-  console.log("LEVELS", value, levels)
-  var l = []
-  var free = b.readUInt32LE(0)
-  do {
-    var _ptr = levels.pop()
-    var val = b.readUInt32LE(_ptr)
-    var next = b.readUInt32LE(_ptr+4+4*l.length)
-    //write as int32 (not uint) to prevent out of bounds check
-    b.writeInt32LE(free | (next & 0x80000000), _ptr + 4 + 4*l.length)
-    l.push(next&0x7ffffff)
-    var again = Math.random() > 0.5
-  } while(levels.length && again)
-  var c = item(b, value, l)
-
-//  b.writeUInt32LE(c | (b.readUInt32LE(_ptr + 4) & 0x8000000), _ptr + 4)
-  return c
-}
-
-function all (b) {
-  var a = []
-  var ptr = 8
-  while(ptr = r_level(b, ptr, 0)) {
-    a.push(r_value(b, ptr))
-  }
-  return a
-}
-
-module.exports = {
-  item: item, dump: dump, find: find, all: all, insert: insert, get: r_value, next: r_level
-}
-
-
 
 
 
