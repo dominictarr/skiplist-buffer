@@ -1,5 +1,5 @@
 var deepEqual = require('assert').deepEqual
-var ll = require('../level-list')
+var ll = require('../')
 
 var tape = require('tape')
 
