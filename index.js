@@ -46,7 +46,6 @@ function findAsync(b, get, ptr, target, level, _cb) {
   ;(function next (ptr, _value) {
     if(level < 0) return cb(null, ptr)
     //if this level is last item
-      console.log('next', ptr, level)
       var next_ptr = r_level(b, ptr, level)
       if(next_ptr === 0) {
         level --
@@ -61,7 +60,6 @@ function findAsync(b, get, ptr, target, level, _cb) {
           else
             ptr = next_ptr
 
-          console.log('cmp', compare(value, target), ptr)
           if(level < 0) cb(null, ptr)
           else next(ptr)
         })
@@ -121,15 +119,10 @@ function insertAsync (b, get, ptr, target, offset, level, cb) {
   b.writeUInt32LE(free+4+4+_level*4, 0) //make space for this item.
 
   //the value we want to insert
-  console.log("OFFSET", offset, free)
   b.writeUInt32LE(offset, free)
 
   ;(function next (ptr) {
 
-    function save (ptr) {
-    }
-
-    console.log('next:', ptr)
     if(level < 0) return write()
     //if this level is last item
     var next_ptr = r_level(b, ptr, level)
@@ -160,15 +153,11 @@ function insertAsync (b, get, ptr, target, offset, level, cb) {
   function write () {
     //I think if insert items bottom up, and set the new pointer first
     //then this should be fully threadsafe.
-    console.log("------- WRITE", free)
     for(var i = 0; i <= _level; i++) {
       var prev = b.readUInt32LE(free+4+i*4)
       var next = b.readUInt32LE(prev+4+i*4) //includes msb continue flag
-      console.log('WRITE next:', i, [prev, next&0x7fffffff], [free+4+i*4, prev+4+i*4])
-      if(free+4+i*4 === 8) throw new Error('overwriting root:free')
       b.writeInt32LE(i < _level ? next | 0x80000000 : next & 0x7fffffff, free+4+i*4)
       //free, free | (next & 0x80000000))
-      if(prev+4+i*4 === 8) throw new Error('overwriting root - prev:'+prev)
       b.writeInt32LE(free | (next & 0x80000000), prev+4+i*4)
     }
     cb(null, free)
@@ -182,16 +171,4 @@ module.exports = {
   get: r_value,
   next: r_level, levels: r_levels
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
