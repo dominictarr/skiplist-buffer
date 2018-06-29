@@ -1,6 +1,9 @@
 var deepEqual = require('assert').deepEqual
 var ll = require('../')
-
+var d = require('../debug')
+ll.dump = d.dump
+ll.all = d.all
+ll.item = d.item
 var tape = require('tape')
 
 tape('simple', function (t) {
