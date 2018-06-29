@@ -57,7 +57,8 @@ tape('decreasing items, async insert', function (t) {
       console.log('wrote', ptr)
     })
   })
-
+  console.log(ll.dump(b))
+  return t.end()
   _a.forEach(function (target) {
     console.log('find')
     var called = false
