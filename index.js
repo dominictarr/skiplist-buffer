@@ -24,10 +24,11 @@ function find(b, ptr, target, level) {
   while(true) {
     if(level < 0) break;
     //if this level is last item
-    if(r_level(b, ptr, level) === 0 || compare(r_value(b, r_level(b, ptr, level)), target) > 0)
+    var next_ptr = r_level(b, ptr, level)
+    if(next_ptr === 0 || compare(r_value(b, next_ptr), target) > 0)
       level --
     else
-      ptr = r_level(b, ptr, level)
+      ptr = next_ptr
   }
 
   return ptr
@@ -48,9 +49,10 @@ function _insert (b, ptr, target, level) {
   while(true) {
     if(level < 0) break;
     //if this level is last item
+    var next_ptr = r_level(b, ptr, level)
     if(
-      r_level(b, ptr, level) === 0 ||
-      compare(r_value(b, r_level(b, ptr, level)), target) > 0
+      next_ptr === 0 ||
+      compare(r_value(b, next_ptr), target) > 0
     ) {
       if(level <= _level)
         b.writeUInt32LE(ptr, free+4+(4*level))
@@ -58,7 +60,7 @@ function _insert (b, ptr, target, level) {
       level --
     }
     else {
-      ptr = r_level(b, ptr, level)
+      ptr = next_ptr
     }
   }
 
@@ -137,9 +139,4 @@ function item (b, value, levels) {
 
   return free
 }
-
-
-
-
-
 
