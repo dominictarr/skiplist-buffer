@@ -4,7 +4,7 @@ var ll = require('../')
 var tape = require('tape')
 
 tape('simple', function (t) {
-  var b = Buffer.alloc(100)
+  var b = Buffer.alloc(1000)
   var c = ll.item(b, 10, [0])
   t.equal(c, 8)
   t.equal(b.readUInt32LE(0), 16)
@@ -17,7 +17,7 @@ tape('simple', function (t) {
 })
 
 tape('simple 2 items', function (t) {
-  var b = Buffer.alloc(100)
+  var b = Buffer.alloc(1000)
   var c = ll.item(b, 10, [16])
   t.equal(b.readUInt32LE(0), 16)
   t.equal(c, 8)
@@ -34,7 +34,7 @@ tape('simple 2 items', function (t) {
 })
 
 tape('simple 4 items', function (t) {
-  var b = Buffer.alloc(100)
+  var b = Buffer.alloc(1000)
   var c = ll.item(b, 0, [24, 32, 0])
   var f = c
   t.equal(b.readUInt32LE(0), 8+4+4*3)
@@ -49,31 +49,25 @@ tape('simple 4 items', function (t) {
   //t.equal(c, 36)
   console.log(ll.dump(b))
   ;[21, 1, 17, 29].forEach(function (target) {
-    var a = ll.find(b, f, target)
-    console.log('find:', target, a)
-    var ptr = a.pop()
+    console.log('find:', target)
+    var ptr = ll.find(b, f, target)
+    console.log('found:', ptr)
     t.ok(ll.get(b, ptr) <= target, 'found smaller or equal to target')
     t.ok(ll.get(b, ll.next(b, ptr, 0)) > target, 'next is greater than target')
   })
 
-  
-  ll.insert(b, f, 29)
-
+  console.log('insert', f, 29)
+//  ll.insert(b, f, 29)
+  console.log('dump')
   console.log(ll.dump(b))
-//  console.log(ll.all(b))
-//  ll.insert(b, f, 31)
-//  console.log(ll.dump(b))
-//  console.log(ll.all(b))
-//
 
   t.end()
 })
 
-
 tape('insert first item', function (t) {
   var b = Buffer.alloc(10*1024)
   var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
-  console.log(ll.dump(b))
+//  console.log(ll.dump(b))
 
   ll.insert(b, c, 1000)
   console.log(ll.dump(b))
@@ -135,8 +129,8 @@ tape('problems', function (t) {
 
 tape('random items', function (t) {
 
-  for(var j = 0; j < 100; j++) {
-    var b = Buffer.alloc(10*1024)
+  for(var j = 0; j < 10; j++) {
+    var b = Buffer.alloc(100*1024)
     var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0])
     var a = []
     for(var i = 0; i < 50; i++) {
@@ -150,7 +144,7 @@ tape('random items', function (t) {
         t.deepEqual(ll.all(b), a.slice().sort(function (a, b) { return a - b }))
         a.forEach(function (v) {
           //searching for an exact value always returns the pointer to that value.
-          var p = ll.find(b, c, v).pop()
+          var p = ll.find(b, c, v)
           t.equal(b.readUInt32LE(p), v)
         })
       }
@@ -166,7 +160,3 @@ tape('random items', function (t) {
 
   t.end()
 })
-
-
-
-
