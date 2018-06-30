@@ -163,3 +163,23 @@ tape('random items', function (t) {
 
   t.end()
 })
+
+var crypto = require('crypto')
+tape('random strings', function (t) {
+  var b = Buffer.alloc(100*1024)
+  var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0])
+  var map = {}
+  for(var i = 0; i < 100; i++) {
+    var str = crypto.randomBytes(5 + ~~(Math.random()*10)).toString('hex')
+    console.log("INSERT", str)
+    var x = ll.insertString(b, c, str)
+    map[str] = x
+    console.log(x, ll.findString(b, c, str))
+  }
+  for(var k in map)
+    t.equal(ll.findString(b, c, k), map[k])
+  t.end()
+
+})
+
+

@@ -1,7 +1,7 @@
 var ll = require('../')
-
+var d = require('../debug')
 var b = Buffer.alloc(4*1024*1024)
-var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+var c = d.item(b, 0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 var start = Date.now()
 for(var i = 0; i < 200000; i++) {
