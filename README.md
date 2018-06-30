@@ -1,4 +1,4 @@
-# skiplist
+# skiplist-buffer
 
 A skiplist implemented directly on top of buffers.
 
