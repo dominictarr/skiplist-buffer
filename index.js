@@ -34,7 +34,10 @@ function find(b, ptr, target, level) {
   return ptr
 }
 
-function findAsync(b, get, ptr, target, level, _cb) {
+function findAsync(b, get, ptr, target, level, compare, _cb) {
+  if(!_cb) _cb = compare, compare = function (a, b) {
+    return a < b ? -1 : a > b ? -1 : 0
+  }
   level = level || r_levels(b, ptr)
 
   function cb (err, ptr) {
@@ -49,7 +52,6 @@ function findAsync(b, get, ptr, target, level, _cb) {
       var next_ptr = r_level(b, ptr, level)
       if(next_ptr === 0) {
         level --
-        console.log('null_ptr', level)
         if(level < 0) cb(null, ptr)
         else next(ptr)
       }
@@ -109,7 +111,10 @@ function insert (b, ptr, target, level) {
   return free
 }
 
-function insertAsync (b, get, ptr, target, offset, level, cb) {
+function insertAsync (b, get, ptr, target, offset, level, compare, cb) {
+  if(!cb) cb = compare, compare = function (a, b) {
+    return a < b ? -1 : a > b ? -1 : 0
+  }
   level = level || r_levels(b, ptr)
   var free = b.readUInt32LE(0) || 8
   //figure out before hand how many levels deep we want to insert this value
@@ -171,4 +176,6 @@ module.exports = {
   get: r_value,
   next: r_level, levels: r_levels
 }
+
+
 
