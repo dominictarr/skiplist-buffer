@@ -17,16 +17,18 @@ function r_levels (b, ptr) {
 function compare (a, b) {
   return a < b ? -1 : a > b ? 1 : 0
 }
+
 var _compare = compare
 
-function find(b, ptr, target, level) {
+function find(b, ptr, target, level, compare) {
   level = level || r_levels(b, ptr)
+  compare = compare || _compare
 
   while(true) {
     if(level < 0) break;
     //if this level is last item
     var next_ptr = r_level(b, ptr, level)
-    if(next_ptr === 0 || compare(r_value(b, next_ptr), target) > 0)
+    if(next_ptr === 0 || compare(r_value(b, next_ptr), target, b) > 0)
       level --
     else
       ptr = next_ptr
@@ -69,24 +71,26 @@ function findAsync(b, get, ptr, target, level, compare, _cb) {
   })(ptr)
 }
 
-function insert (b, ptr, target, level) {
+function insert (b, ptr, target, level, compare) {
   level = level || r_levels(b, ptr)
+  compare = compare || _compare
   var free = b.readUInt32LE(0) || 8
   //figure out before hand how many levels deep we want to insert this value
-  for(var _level = 0; _level < level && Math.random() > 0.5; )
+  for(var _level = 0; _level < level && Math.random() > 0.5;)
     _level ++
 
   b.writeUInt32LE(free+4+4+_level*4, 0) //make space for this item.
 
   //the value we want to insert
   b.writeUInt32LE(target, free)
+
   while(true) {
     if(level < 0) break;
     //if this level is last item
     var next_ptr = r_level(b, ptr, level)
     if(
       next_ptr === 0 ||
-      compare(r_value(b, next_ptr), target) > 0
+      compare(r_value(b, next_ptr), target, b) > 0
     ) {
       if(level <= _level)
         b.writeUInt32LE(ptr, free+4+(4*level))
@@ -169,15 +173,35 @@ function insertAsync (b, get, ptr, target, offset, level, compare, cb) {
 }
 
 
+function string_compare (ptr, target, b) {
+  return target.compare(b, ptr+4, ptr+4+b.readUInt32LE(ptr), 0, target.length)
+}
+
+function findString (b, ptr, string) {
+  var target = new Buffer(string)
+  return find(b, ptr, target, null, string_compare)
+}
+
+function insertString (b, ptr, string, level) {
+  //copy the string into the same buffer...
+  var free = b.readUInt32LE(0)
+  var length = Buffer.byteLength(string)
+
+  b.write(string, free+4)
+  var target = b.slice(free+4, free+4+length)
+  b.writeUInt32LE(length, free)
+  b.writeUInt32LE(free+length+4, 0) //update free pointer
+  return insert(b, ptr, free, null, function (value, _target) {
+    return string_compare(value, target, b)
+  })
+}
+
 module.exports = {
   find: find, insert: insert,
   findAsync: findAsync, insertAsync: insertAsync,
   get: r_value,
-  next: r_level, levels: r_levels
+  next: r_level, levels: r_levels,
+  insertString: insertString,
+  findString, findString
 }
-
-
-
-
-
 
