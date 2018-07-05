@@ -176,10 +176,13 @@ tape('random strings', function (t) {
     map[str] = x
     console.log(x, ll.findString(b, c, str))
   }
-  for(var k in map)
+  for(var k in map) {
     t.equal(ll.findString(b, c, k), map[k])
+    t.equal(ll.getString(b, ll.findString(b, c, k)), k)
+  }
   t.end()
 
 })
+
 
 

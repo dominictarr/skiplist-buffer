@@ -196,12 +196,19 @@ function insertString (b, ptr, string, level) {
   })
 }
 
+function getString (b, ptr) {
+  var string_ptr = b.readUInt32LE(ptr)
+  var length = b.readUInt32LE(string_ptr)
+  return b.toString('utf8', string_ptr+4, string_ptr+4+length)
+}
+
 module.exports = {
   find: find, insert: insert,
   findAsync: findAsync, insertAsync: insertAsync,
   get: r_value,
   next: r_level, levels: r_levels,
   insertString: insertString,
-  findString, findString
+  findString, findString,
+  getString: getString
 }
 
