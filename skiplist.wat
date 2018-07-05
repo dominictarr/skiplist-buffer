@@ -3,7 +3,6 @@
   (import "console" "log" (func $log (param i32) (param i32)))
   (memory (export "memory") 1)
 
-
   (func $level_ptr
     (param $ptr i32) (param $level i32)
     (result i32)
@@ -21,6 +20,7 @@
       )
   )
 
+  ;; compare, to be used for findString
   (func $compare
     (param $a i32) (param $a_length i32)
     (param $b i32) (param $b_length i32)
@@ -76,6 +76,7 @@
         (return (get_local $ptr))
       )
       (set_local $next (i32.and (i32.load
+        ;;tried inlining this, made only 5% perf difference
         (call $level_ptr (get_local $ptr) (get_local $level))
       ) (i32.const 0x7ffffff)))
 
@@ -97,4 +98,5 @@
   (export "find" (func $find))
   (export "compare" (func $compare))
 )
+
 
