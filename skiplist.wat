@@ -19,6 +19,42 @@
     )
   )
 
+  (func $compare
+    (param $a i32) (param $a_length i32)
+    (param $b i32) (param $b_length i32)
+    (result i32)
+    (local $cmp i32)
+    (local $length i32)
+    ;; set length to the shortest
+    (set_local $length (if
+      (i32.gt_u (get_local $a_length) (get_local $b_length))
+      (get_local $b_length)
+      (get_local $a_length)
+    ))
+
+    (loop $forever
+      (if
+        (i32.eqz (get_local $length))
+        (return (i32.const 0))
+        (set_local $cmp (i32.sub
+          (i32.load8_u (get_local $a))
+          (i32.load8_u (get_local $b))
+        ))
+        (if
+          (i32.eqz (i32.eqz (get_local $cmp)))
+          (return (get_local $cmp))
+          (else
+            ;;increment a & b pointers
+            (set_local $a (i32.add (get_local $a) (i32.const 1)))
+            (set_local $b (i32.add (get_local $a) (i32.const 1)))
+            ;;decrease 
+            (set_local $length (i32.sub (get_local $length) (i32.const 1)))
+          )
+        )
+      )
+    )
+  )
+
   (func $find
     (param $ptr i32) (param $target i32) (param $level i32)
     (result i32)
@@ -46,7 +82,16 @@
   )
 
   (export "find" (func $find))
+  (export "compare" (func $compare))
 )
+
+
+
+
+
+
+
+
 
 
 
