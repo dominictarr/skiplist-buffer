@@ -125,6 +125,8 @@
 
       (call $log (i32.const 76) (get_local $next))
       (call $log (i32.const 84) (get_local $target))
+      (call $log (i32.const 67) (call $compare_strings (i32.load (get_local $next)) (get_local $target)))
+
       (if
         (i32.or
           (i32.eqz (get_local $next))
@@ -145,15 +147,9 @@
 
 
   (export "findString" (func $find_string))
-  (export "find" (func $find_string))
+  (export "find" (func $find))
   (export "compare" (func $compare))
+  (export "compareStrings" (func $compare_strings))
 )
-
-
-
-
-
-
-
 
 

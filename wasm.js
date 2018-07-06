@@ -34,9 +34,12 @@ exports.grow = function (n) {
   exports.buffer = new Buffer(instance.exports.memory.buffer)
 }
 
+exports.findString = function (c, string, level) {
+  var b = exports.buffer
+  var free = b.readUInt32LE(0)
+  b.write(string, free+4)
+  b.writeUInt32LE(Buffer.byteLength(string), free)
+  return instance.exports.findString(c, free, level)
+}
 
-
-
-
-
-
+exports.compareStrings = instance.exports.compareStrings
