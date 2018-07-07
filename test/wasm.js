@@ -85,10 +85,10 @@ tape('compare strings', function (t) {
   }
   t.end()
 })
-return
+
 tape('random strings', function (t) {
-  var b = Buffer.alloc(100*1024)
-  var c = d.item(b, 0, [0, 0, 0, 0, 0, 0])
+  var b = sl.buffer
+  var c = d.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
   var map = {}
   for(var i = 0; i < 100; i++) {
     var str = crypto.randomBytes(5 + ~~(Math.random()*10)).toString('hex')
@@ -96,23 +96,15 @@ tape('random strings', function (t) {
     map[str] = x
     console.log(x, ll.findString(b, c, str))
   }
-  
   for(var k in map) {
+    console.log('find:', k, map[k])
     t.equal(ll.findString(b, c, k), map[k])
-    t.equal(sl.findString(c, k, 5), map[k])
+    t.equal(ll.findString(b, c, k), map[k])
+    t.equal(sl.findString(c, k, 6), map[k])
 //    t.equal(ll.getString(b, ll.findString(b, c, k)), k)
   }
   t.end()
 
 })
-
-
-
-
-
-
-
-
-
 
 
