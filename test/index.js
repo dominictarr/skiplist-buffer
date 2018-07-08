@@ -9,72 +9,7 @@ var tape = require('tape')
 tape('simple', function (t) {
   var b = Buffer.alloc(1000)
   var c = ll.item(b, 10, [0])
-  t.equal(c, 8)
-  t.equal(b.readUInt32LE(0), 16)
-  console.log(b)
-  t.deepEqual(ll.dump(b), {
-    0: {value: 16, levels: [8]},
-    8: {value: 10, levels: [0]},
-  })
-  t.end()
-})
-
-tape('simple 2 items', function (t) {
-  var b = Buffer.alloc(1000)
-  var c = ll.item(b, 10, [16])
-  t.equal(b.readUInt32LE(0), 16)
-  t.equal(c, 8)
-  var c = ll.item(b, 20, [0])
-  t.equal(b.readUInt32LE(0), 24)
-  t.equal(c, 16)
-  console.log(b)
-  t.deepEqual(ll.dump(b), {
-    0: {value: 24, levels: [8]},
-    8: {value: 10, levels: [16]},
-    16: {value: 20, levels: [0]},
-  })
-  t.end()
-})
-
-tape('simple 4 items', function (t) {
-  var b = Buffer.alloc(1000)
-  var c = ll.item(b, 0, [24, 32, 0])
-  var f = c
-  t.equal(b.readUInt32LE(0), 8+4+4*3)
-  t.equal(c, 8)
-  var c = ll.item(b, 15, [32])
-  t.equal(c, 24)
-  var c = ll.item(b, 20, [44, 60])
-  var c = ll.item(b, 25, [52])
-  var c = ll.item(b, 27, [60])
-//  t.equal(c, 24)
-  var c = ll.item(b, 30, [0, 0])
-  //t.equal(c, 36)
-  console.log(ll.dump(b))
-  ;[21, 1, 17, 29].forEach(function (target) {
-    console.log('find:', target)
-    var ptr = ll.find(b, f, target)
-    console.log('found:', ptr)
-    t.ok(ll.get(b, ptr) <= target, 'found smaller or equal to target')
-    t.ok(ll.get(b, ll.next(b, ptr, 0)) > target, 'next is greater than target')
-  })
-
-  console.log('insert', f, 29)
-//  ll.insert(b, f, 29)
-  console.log('dump')
-  console.log(ll.dump(b))
-
-  t.end()
-})
-
-tape('insert first item', function (t) {
-  var b = Buffer.alloc(10*1024)
-  var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
-//  console.log(ll.dump(b))
-
-  ll.insert(b, c, 1000)
-  console.log(ll.dump(b))
-  
+  t.deepEqual(d.all(b), [])
   t.end()
 })
 
@@ -112,20 +47,6 @@ tape('decreasing items', function (t) {
       throw err
     }
   })
-  t.deepEqual(ll.all(b), a)
-  t.end()
-})
-
-tape('problems', function (t) {
-  b = Buffer.alloc(1024)
-
-  b.write('6c0000000800000000000000240000803800008038000080380000803800008050000000460100003800008050000000d4020000500000004b020000300000802400008050000080500000805000000093030000000000800000008000000080000000800000008000000000','hex')
-  var v = 838
-  
-  var a = [326, 587, 724, 838, 915]
-  console.log(ll.all(b))
-  console.log(ll.dump(b))
-  ll.insert(b, 8, v)
   t.deepEqual(ll.all(b), a)
   t.end()
 })
@@ -183,6 +104,23 @@ tape('random strings', function (t) {
   t.end()
 
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

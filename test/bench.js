@@ -7,7 +7,7 @@ var L = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 var c = d.item(b, 0, L)
 
 var start = Date.now()
-var N = 2000000
+var N = 200000
 for(var i = 0; i < N; i++) {
   var v = ~~(100000*Math.random())
   ll.insert(b, c, v)
@@ -27,11 +27,11 @@ for(var i = 0; i < N; i++) {
 }
 console.log('find', Date.now() - start)
 
-
 var start = Date.now()
 for(var i = 0; i < N; i++) {
   var v = ~~(100000*Math.random())
   w.find(c, v, L.length)
 }
 console.log('find.wasm', Date.now() - start)
+
 

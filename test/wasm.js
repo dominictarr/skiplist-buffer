@@ -54,7 +54,7 @@ tape('insert', function (t) {
   a.forEach(function (v) {
     t.equal(b.readUInt32LE(ll.find(b, c, v)), v)
     t.equal(sl.find(c, v, 4), ll.find(b, c, v))
-    t.equal(b.readUInt32LE(sl.find(c, v)), v)
+    t.equal(b.readUInt32LE(sl.find(c, v, 6)), v)
   })
   t.deepEqual(d.all(b), a)
 
@@ -90,7 +90,7 @@ tape('random strings', function (t) {
   var b = sl.buffer
   var c = d.item(b, 0, [0, 0, 0, 0, 0, 0, 0])
   var map = {}
-  for(var i = 0; i < 100; i++) {
+  for(var i = 0; i < 10; i++) {
     var str = crypto.randomBytes(5 + ~~(Math.random()*10)).toString('hex')
     var x = ll.insertString(b, c, str)
     map[str] = x
@@ -106,5 +106,6 @@ tape('random strings', function (t) {
   t.end()
 
 })
+
 
 
