@@ -7,11 +7,11 @@
     (param $ptr i32) (param $level i32)
     (result i32)
 
-    ;; ptr + 4 + 4*level
+    ;; ptr + 8 + level*4
       (i32.add
         (get_local $ptr)
         (i32.add
-          (i32.const 4)
+          (i32.const 8) ;; FORWARD
           (i32.mul
             (get_local $level)
             (i32.const 4)

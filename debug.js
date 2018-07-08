@@ -4,6 +4,8 @@ var ll = require('./')
 var r_value = ll.get
 var r_level = ll.next
 
+var get_next = ll.get_next
+
 function all (b) {
   var a = []
   var ptr = 8
@@ -16,10 +18,9 @@ function all (b) {
 function dump_node (b, ptr) {
   var levels = []
   var a = {value: b.readUInt32LE(ptr), levels: levels}
-  var v
+  var level = 0
   do {
-    ptr += 4
-    v = b.readInt32LE(ptr)
+    v = b.readInt32LE(get_next(ptr, level++))
     levels.push(v & 0x7fffffff)
   }
   while(v < 0)
@@ -33,9 +34,10 @@ function dump (b) {
     var levels = []
     a[ptr] = {value: b.readUInt32LE(ptr), levels: levels}
     var v
+    var level = 0
     do {
-      ptr += 4
-      v = b.readInt32LE(ptr)
+//      ptr += 4
+      v = b.readInt32LE(get_next(ptr, level++))
       levels.push(v & 0x7fffffff)
     }
     while(v < 0)
@@ -54,10 +56,10 @@ function item (b, value, levels) {
   b.writeUInt32LE(value, free)
   for(var i = 0; i < levels.length; i++)
     b.writeInt32LE(
-      levels[i] | ((i + 1) < levels.length ? 0x80000000 : 0), free+4+i*4
+      levels[i] | ((i + 1) < levels.length ? 0x80000000 : 0), get_next(free, i)
     )
 
-  b.writeUInt32LE(free + 4 + levels.length*4, 0) //update free pointer.
+  b.writeUInt32LE(4+get_next(free, levels.length-1), 0) //update free pointer.
 
   return free
 }
@@ -65,6 +67,7 @@ function item (b, value, levels) {
 module.exports = {
   item: item, dump: dump, all: all
 }
+
 
 
 
