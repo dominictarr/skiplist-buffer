@@ -1,7 +1,7 @@
 var deepEqual = require('assert').deepEqual
 
-
-var ll = require('../')
+var ll = require('..')
+var ll_async = require('../async')
 var d = require('../debug')
 ll.dump = d.dump
 ll.all = d.all
@@ -28,7 +28,7 @@ tape('decreasing items', function (t) {
   a.forEach(function (target) {
     console.log('find')
     var called = false
-    ll.findAsync(b, function get(value, cb) {
+    ll_async.findAsync(b, function get(value, cb) {
       console.log('GET', value)
       cb(null, value)
     }, c, target, null, function (err, value, ptr) {
@@ -53,11 +53,9 @@ tape('decreasing items, async insert', function (t) {
 
   a.slice().reverse().forEach(function (v) {
     _a.push(v)
-    ll.insertAsync(b, get, c, v*1, v*1, null, function (err, ptr) {
-      console.log('wrote', ptr)
+    ll_async.insertAsync(b, get, c, v*1, v*1, null, function (err, ptr) {
     })
   })
-  console.log(ll.dump(b))
   return t.end()
   _a.forEach(function (target) {
     console.log('find')
@@ -71,6 +69,8 @@ tape('decreasing items, async insert', function (t) {
   })
   t.end()
 })
+
+
 
 
 

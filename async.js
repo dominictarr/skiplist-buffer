@@ -1,3 +1,16 @@
+var ll = require('./')
+
+var r_value = ll.get
+var r_level = ll.next
+var r_levels = ll.levels
+var get_next = ll.get_next
+
+function compare (a, b) {
+  return a < b ? -1 : a > b ? 1 : 0
+}
+
+var _compare = compare
+
 function findAsync(b, get, ptr, target, level, compare, _cb) {
   if(!_cb) _cb = compare, compare = _compare
 
@@ -91,3 +104,4 @@ function insertAsync (b, get, ptr, target, offset, level, compare, cb) {
 
 exports.findAsync = findAsync
 exports.insertAsync = insertAsync
+
