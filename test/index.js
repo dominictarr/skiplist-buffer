@@ -105,22 +105,15 @@ tape('random strings', function (t) {
 
 })
 
+tape('same string twice', function (t) {
+  var b = Buffer.alloc(100*1024)
+  var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0])
+  var x = ll.insertString(b, c, 'abc')
+  t.equal(ll.findString(b, c, 'abc'), x)
+  //current behaviour: finds the last equal string.
+  var x2 = ll.insertString(b, c, 'abc')
+  t.equal(ll.findString(b, c, 'abc'), x2)
+  t.end()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+})
 

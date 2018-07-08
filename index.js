@@ -38,7 +38,7 @@ function find(b, ptr, target, level, compare) {
     if(level < 0) break;
     //if this level is last item
     var next_ptr = r_level(b, ptr, level)
-    if(next_ptr === 0 || compare(r_value(b, next_ptr), target, b) > 0)
+    if(next_ptr === 0 || compare(r_value(b, next_ptr), target, b) >= 0)
       level --
     else
       ptr = next_ptr
@@ -92,7 +92,6 @@ function insert (b, ptr, target, level, compare) {
   return free
 }
 
-
 function string_compare (ptr, target, b) {
   return target.compare(b, ptr+4, ptr+4+b.readUInt32LE(ptr), 0, target.length)
 }
@@ -131,10 +130,5 @@ module.exports = {
   getString: getString,
   get_next: get_next
 }
-
-
-
-
-
 
 
