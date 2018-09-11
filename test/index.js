@@ -105,15 +105,37 @@ tape('random strings', function (t) {
 
 })
 
-tape('same string twice', function (t) {
+tape('same string twice, inbetween string', function (t) {
   var b = Buffer.alloc(100*1024)
   var c = ll.item(b, 0, [0, 0, 0, 0, 0, 0])
+  console.log("C", c)
   var x = ll.insertString(b, c, 'abc')
+  console.log("X", x)
   t.equal(ll.findString(b, c, 'abc'), x)
   //current behaviour: finds the last equal string.
-  var x2 = ll.insertString(b, c, 'abc')
-  t.equal(ll.findString(b, c, 'abc'), x2)
+  var x2 = ll.insertString(b, c, 'abc2')
+  console.log("X2", x2)
+  t.equal(ll.findString(b, c, 'abc2'), x2)
+
+  //find a string inbetween last item and end
+  var x3 = ll.findString(b, c, 'abz')
+
+  console.log("X3", x3)
+  t.equal(x3, x2, 'after last item')
+
+  var x4 = ll.findString(b, c, '!a')
+  //console.log(ll.getString(x4))
+  t.equal(x4, x, 'before first item')
+  console.log("X4", x4)
+
+  var x5 = ll.findString(b, c, 'abc1')
+  t.equal(x4, x2, 'after first item')
+
+
   t.end()
 
 })
+
+
+
 
