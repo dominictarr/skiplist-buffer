@@ -30,18 +30,31 @@ function compare (a, b) {
 
 var _compare = compare
 
-function find(b, ptr, target, level, compare) {
+/*
+ranges
+
+  cmp > 0 // get last equal element
+  cmp >= 0 // get last smaller element
+  //to get first gt element, use find(>) + 1?
+*/
+
+function find(b, ptr, target, level, compare, gt) {
   level = level || r_levels(b, ptr)
   compare = compare || _compare
-
+  gt = gt !== false
   while(true) {
     if(level < 0) break;
     //if this level is last item
     var next_ptr = r_level(b, ptr, level)
-    if(next_ptr === 0 || compare(r_value(b, next_ptr), target, b) >= 0)
+    if(next_ptr === 0)
       level --
-    else
+    else {
+      var cmp = compare(r_value(b, next_ptr), target, b)
+      if(gt ? cmp > 0 : cmp >= 0)
+        level --
+      else
       ptr = next_ptr
+    }
   }
 
   return ptr
@@ -130,5 +143,4 @@ module.exports = {
   getString: getString,
   get_next: get_next
 }
-
 
