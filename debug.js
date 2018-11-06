@@ -2,7 +2,7 @@
 
 var ll = require('./')
 var r_value = ll.get
-var r_level = ll.next
+var r_level = ll.r_level
 
 var get_next = ll.get_next
 

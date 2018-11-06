@@ -108,11 +108,17 @@ function insert (b, ptr, target, level, compare) {
     }
   }
 
+  //write a backlink.
+
+  b.writeUInt32LE(b.readUInt32LE(free+get_next(0)) & 0x7fffffff)
+
   //I think if insert items bottom up, and set the new pointer first
   //then this should be fully threadsafe.
   for(var i = 0; i <= _level; i++) {
     var prev = b.readUInt32LE(get_next(free, i))
     var next = b.readUInt32LE(get_next(prev, i)) //includes msb continue flag
+    //these say Int 32, but remember the msb is 1 which means negative.
+    //so this is actually correct.
     b.writeInt32LE(i < _level ? next | 0x80000000 : next & 0x7fffffff, get_next(free, i))
     //free, free | (next & 0x80000000))
     b.writeInt32LE(free | (next & 0x80000000), get_next(prev, i))
@@ -153,12 +159,12 @@ function getString (b, ptr) {
 module.exports = {
   find: find, insert: insert,
   get: r_value,
-  next: r_level, levels: r_levels,
+  r_level: r_level,
+  levels: r_levels,
   insertString: insertString,
   findString, findString,
   getString: getString,
   get_next: get_next
 }
-
 
 
