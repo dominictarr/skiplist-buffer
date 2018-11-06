@@ -1,5 +1,8 @@
 'use strict'
 
+//refactor to make space for backlink:
+//introduced in 0b75389bbccd4c3a09a85d244102cdbe78e27e02
+//(backlink isn't implemented yet)
 const FORWARD = 8
 
 function get_next (base, level) {
@@ -42,6 +45,7 @@ function find(b, ptr, target, level, compare, gt) {
   level = level || r_levels(b, ptr)
   compare = compare || _compare
   gt = gt !== false
+  var prev_ptr = 0
   while(true) {
     if(level < 0) break;
     //if this level is last item
@@ -52,26 +56,37 @@ function find(b, ptr, target, level, compare, gt) {
       var cmp = compare(r_value(b, next_ptr), target, b)
       if(gt ? cmp > 0 : cmp >= 0)
         level --
-      else
-      ptr = next_ptr
+      else {
+        prev_ptr = ptr
+        ptr = next_ptr
+      }
     }
   }
 
-  return ptr
+  return ptr //gt ? ptr : prev_ptr
 }
+
+/*
+  this function allocates space for the inserted value,
+  and as it searches, uses that space to store the previous links.
+  when it finds the insertion point, it flips those values around,
+  updates the previous pointers to point to this value,
+  and sets these pointers to point to the previous's next's values.
+*/
 
 function insert (b, ptr, target, level, compare) {
   level = level || r_levels(b, ptr)
   compare = compare || _compare
   var free = b.readUInt32LE(0) || 8
+
   //figure out before hand how many levels deep we want to insert this value
   for(var _level = 0; _level < level && Math.random() > 0.5;)
     _level ++
 
-  //address of last level + 4
+  //update free space pointer: address of last level + 4 (space for target value)
   b.writeUInt32LE(4+get_next(free, _level), 0) //make space for this item.
 
-  //the value we want to insert
+  //insert value at start of previous free space
   b.writeUInt32LE(target, free)
 
   while(true) {
@@ -82,6 +97,7 @@ function insert (b, ptr, target, level, compare) {
       next_ptr === 0 ||
       compare(r_value(b, next_ptr), target, b) > 0
     ) {
+      //store value of previous pointer
       if(level <= _level)
         b.writeUInt32LE(ptr, get_next(free, level))
 
@@ -109,9 +125,9 @@ function string_compare (ptr, target, b) {
   return target.compare(b, ptr+4, ptr+4+b.readUInt32LE(ptr), 0, target.length)
 }
 
-function findString (b, ptr, string) {
+function findString (b, ptr, string, gt) {
   var target = new Buffer(string)
-  return find(b, ptr, target, null, string_compare)
+  return find(b, ptr, target, null, string_compare, gt)
 }
 
 function insertString (b, ptr, string, level) {
@@ -143,4 +159,6 @@ module.exports = {
   getString: getString,
   get_next: get_next
 }
+
+
 
